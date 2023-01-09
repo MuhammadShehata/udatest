@@ -163,8 +163,7 @@ jobs:
           name: Backend Scan
           command: |
             cd backend
-            npm set audit false
-            npm install
+            npm install --no-audit
             npm audit --audit-level=critical
 
   deploy-infrastructure:
@@ -237,8 +236,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            npm set audit false
-            npm install
+            npm install 
             npm audit fix --audit-level=critical --force
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
