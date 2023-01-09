@@ -163,6 +163,8 @@ jobs:
           name: Backend Scan
           command: |
             cd backend
+            npm set audit false
+            npm install
             npm audit --audit-level=critical
 
   deploy-infrastructure:
@@ -231,21 +233,22 @@ jobs:
     steps:
       - checkout
       - install_awscli
-      - restore_cache:
-          keys: [build-backend]
-      - attach_workspace:
-          at: ~/
       - run:
           name: Run migrations
           command: |
             cd backend
+            npm set audit false
+            npm install
+            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration status to kvdb.io
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl https://kvdb.io/FwoVwYib8t6ynHfdUu5XEB/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
       - destroy-environment
       - revert-migrations
